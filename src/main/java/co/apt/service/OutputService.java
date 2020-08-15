@@ -1,44 +1,39 @@
 package co.apt.service;
 
-import co.apt.constant.OutputConstants;
-
-public class OutputService {
+/**
+ * Output service to be used as one way communication interface for the user
+ */
+public interface OutputService {
+    /**
+     * Dispense beverage from the outlet
+     * @param beverageName name of beverage to dispense from one the outlets
+     */
+    void dispense(String beverageName);
 
     /**
-     * @param beverageName
+     * Output message for item unavailable
+     * @param beverageName name of beverage which was to be dispensed
+     * @param missingItem name of item missing in the inventory
      */
-    public void dispense(String beverageName){
-        System.out.printf(OutputConstants.itemPrepared, beverageName);
-    }
+    void outputUnavailable(String beverageName, String missingItem);
 
     /**
-     * @param beverageName
-     * @param missingItem
+     * Output message for insufficient item
+     * @param beverageName name of beverage which was to be dispensed
+     * @param insufficientItem name of item insufficient in the inventory
      */
-    public void outputUnavailable(String beverageName, String missingItem){
-        System.out.printf(OutputConstants.itemUnavailable, beverageName, missingItem);
-    }
+    void outputInsufficient(String beverageName, String insufficientItem);
 
     /**
-     * @param beverageName
-     * @param insufficientItem
+     * Output message for item which needs refill
+     * @param lowItem name of item low in quantity to be refilled
      */
-    public void outputInsufficient(String beverageName, String insufficientItem){
-        System.out.printf(OutputConstants.itemInsufficient, beverageName, insufficientItem);
-    }
+    void refillRequired(String lowItem);
 
     /**
-     * @param lowItem
+     * Output message for item refilled
+     * @param key name of item refilled
+     * @param value quantity with which item was refilled in the inventory
      */
-    public void refillRequired(String lowItem) {
-        System.out.printf(OutputConstants.refill, lowItem);
-    }
-
-    /**
-     * @param key
-     * @param value
-     */
-    public void refilled(String key, Integer value) {
-        System.out.printf(OutputConstants.refilled, key, value);
-    }
+    void refilled(String key, Integer value);
 }

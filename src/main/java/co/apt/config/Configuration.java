@@ -12,7 +12,7 @@ import java.io.IOException;
  * Loads configuration from file to a public member config to be maintained as state of inventory
  * Uses jackson mapper to unmarshall json to config class
  */
-public class ConfigParser {
+public class Configuration {
 
     /**
      * Central state of configuration and inventory management to be accessed through out the application

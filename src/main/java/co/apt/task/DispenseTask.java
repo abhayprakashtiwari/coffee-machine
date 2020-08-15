@@ -1,11 +1,18 @@
-package co.apt.service;
+package co.apt.task;
 
 import co.apt.model.Config;
+import co.apt.service.InventoryManagementService;
+import co.apt.service.OutputService;
 
 import java.util.Map;
 
 /**
- *
+ * DispenseTask represents each order in the queue (pool). Instance needs to beverage name to be prepared, configuration
+ * reference, inventory and output service reference to run. When instantiated and queued in the executor at the time of
+ *  execution the instance run fetches recipe of the beverage first. Acquires lock to the inventory store and checks for
+ *  item missing or insufficient, if all ingredients are available modifies the inventory with consumed quantities of
+ *  ingredients and releases to the lock to dispense the beverage. In case when an item is unavailable or insufficient
+ *  it returns releasing the acquired lock with modifiying or dispensing beverage.
  */
 public class DispenseTask implements Runnable {
 
@@ -29,17 +36,20 @@ public class DispenseTask implements Runnable {
     }
 
     /**
-     *
+     * Fetch recipe from config reference.
+     * Acquire lock from inventory store
+     * Verify any item missing or insufficient if yes return
+     * If all item available modify inventory and release the lock, dispense the beverage
      */
     @Override
     public void run() {
         Map<String, Integer> recipe = fetchRecipe(beverageName);
         try {
-            inventoryManagementService.mutex.lock();
+            inventoryManagementService.acquireLock();
             if(missingItem(recipe) || insufficientItem(recipe)) return;
             inventoryManagementService.modifyInventory(config.getMachine().getTotalItemsQuantity(), recipe);
         } finally {
-            inventoryManagementService.mutex.unlock();
+            inventoryManagementService.releaseLock();
         }
         dispense(beverageName);
     }

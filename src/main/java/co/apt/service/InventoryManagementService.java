@@ -1,55 +1,51 @@
 package co.apt.service;
 
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- *
+ * Inventory management service handles all the checks, modification and refilling the inventory items.
+ * Inorder to avoid multiple threads modifying inventory at once, service exposes acquire and release lock
  */
-public class InventoryManagementService {
-
-    public ReentrantLock mutex = new ReentrantLock();
+public interface InventoryManagementService {
 
     /**
-     * @param inventory
-     * @param recipe
+     * Locks inventory resource, to be used when threads concurrently reads/writes
      */
-    public void modifyInventory(Map<String, Integer> inventory, Map<String, Integer> recipe){
-        recipe.forEach((k,v)-> inventory.put(k, inventory.get(k)-v));
-    }
+    void acquireLock();
 
     /**
-     * @param inventory
-     * @param recipe
-     * @return
+     * Release lock acquired after reading/writing inventory resource
      */
-    public String missingItemInInventory(Map<String, Integer> inventory, Map<String, Integer> recipe){
-        for (String ingredient : recipe.keySet()){
-            if(!inventory.containsKey(ingredient)) return ingredient;
-        }
-        return null;
-    }
+    void releaseLock();
 
     /**
-     * @param inventory
-     * @param recipe
-     * @return
+     * Modify inventory ingredients as per the recipe ingredients
+     * @param inventory map of items and quantity values
+     * @param recipe map of ingredients required with quantity as corresponding values
      */
-    public String insufficientItemInInventory(Map<String, Integer> inventory, Map<String, Integer> recipe){
-        for(Map.Entry<String, Integer> entry : recipe.entrySet()){
-            if(entry.getValue() > inventory.get(entry.getKey())) return entry.getKey();
-        }
-        return null;
-    }
+    void modifyInventory(Map<String, Integer> inventory, Map<String, Integer> recipe);
 
     /**
-     * @param item
-     * @param quantity
-     * @param inventory
+     * Determine missing ingredient in the inventory from ingredients required for recipe
+     * @param inventory map of items and quantity values
+     * @param recipe map of ingredients required with quantity as corresponding values
+     * @return missing ingredient name
      */
-    public void refillItem(String item, Integer quantity, Map<String,Integer> inventory){
-        inventory.put(item, inventory.get(item)+quantity);
-    }
+    String missingItemInInventory(Map<String, Integer> inventory, Map<String, Integer> recipe);
 
+    /**
+     * Determine insufficient ingredient in the inventory quantity as per the corresponding recipe ingredient quantities
+     * @param inventory map of items and quantity values
+     * @param recipe map of ingredients required with quantity as corresponding values
+     * @return insufficient ingredient name
+     */
+    String insufficientItemInInventory(Map<String, Integer> inventory, Map<String, Integer> recipe);
 
+    /**
+     * Refill item in inventory with quantity value
+     * @param item item name to be refilled in the inventory
+     * @param quantity value to be refilled by in the inventory
+     * @param inventory map of items and quantity values
+     */
+    void refillItem(String item, Integer quantity, Map<String,Integer> inventory);
 }
